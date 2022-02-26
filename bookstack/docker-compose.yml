@@ -1,0 +1,43 @@
+version: "2"
+services:
+  bookstack:
+    image: lscr.io/linuxserver/bookstack
+    container_name: bookstack
+    hostname: bookstack
+    env_file:
+      - ./.env
+    volumes:
+      - config:/config
+    restart: unless-stopped
+    depends_on:
+      - bookstack_db
+      - redis
+    networks:
+      - internal
+      - proxy
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    networks:
+      - internal
+
+  bookstack_db:
+    image: lscr.io/linuxserver/mariadb
+    container_name: bookstack_db
+    env_file:
+      - ./.env
+    volumes:
+      - db:/config
+    restart: unless-stopped
+    networks:
+      - internal
+
+volumes:
+  config:
+  db:
+
+networks:
+  internal:
+  proxy:
+    external: true

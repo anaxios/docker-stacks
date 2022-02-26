@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:11-alpine
+    env_file:
+      - .env
+    logging:
+      driver: "none"
+    restart: unless-stopped
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  wiki:
+    image: ghcr.io/requarks/wiki:2
+    hostname: wiki
+    depends_on:
+      - db
+    env_file:
+      - .env
+    restart: unless-stopped
+    #    ports:
+    #      - "3000:3000"
+    networks:
+      - backend
+      - proxy
+
+  redis:
+    image: redis:alpine
+    #   entrypoint: redis-server --appendonly yes
+    restart: always
+    depends_on:
+      - db
+    networks:
+      - backend
+
+volumes:
+  db-data:
+
+networks:
+  backend:
+  proxy:
+    external: true

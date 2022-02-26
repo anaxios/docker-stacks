@@ -1,0 +1,48 @@
+version: "3.3"
+
+services:
+  synapse:
+    image: "matrixdotorg/synapse:latest"
+    container_name: "synapse"
+    volumes:
+      - ${PATH_TO_DATA}:/data" # Not using volume for easier access to homeserver.yaml
+    env_file:
+      - .env
+    depends_on:
+      - postgresql
+      - redis
+    networks:
+      - proxy
+      - backend
+  #        healthcheck:
+  #           test: ["CMD", "curl", "-fSsk", https://localhost:8448/health]
+  #           interval: 1m
+  #           timeout: 5s
+  #           start_period: 40s
+
+  postgresql:
+    image: postgres:latest
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - "postgresdata:/var/lib/postgresql/data"
+    networks:
+      - backend
+
+  redis:
+    image: redis:alpine
+    entrypoint: redis-server
+    restart: always
+    depends_on:
+      - postgresql
+    networks:
+      - backend
+
+volumes:
+  postgresdata:
+
+networks:
+  backend:
+  proxy:
+    external: true

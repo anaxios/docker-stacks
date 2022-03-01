@@ -1,0 +1,40 @@
+version: "3.1"
+
+services:
+  db:
+    ports:
+      - 3306:3306 # required
+    hostname: mariadb
+    image: mariadb
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - data:/var/lib/mysql
+    networks:
+      - internal
+
+  lp:
+    hostname: lp
+    image: adminer
+    restart: always
+    #     ports:
+    #             - 8080:8080
+    networks:
+      - internal
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.${PROJECT_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${PROJECT_NAME}.rule=Host(`${DOMAIN_NAME}`)"
+      - "traefik.http.routers.${PROJECT_NAME}.tls=true"
+      - "traefik.http.services.${PROJECT_NAME}-service.loadbalancer.server.port=8080"
+
+volumes:
+  data:
+
+networks:
+  internal:
+  proxy:
+    external: true

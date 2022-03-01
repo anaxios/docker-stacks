@@ -23,6 +23,13 @@ services:
       - ${PATH_TO_MEDIA}:/data
     networks:
       - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.${PROJECT_NAME}.entrypoints=web"
+      - "traefik.http.routers.${PROJECT_NAME}.rule=Host(`${DOMAIN_NAME}`)"
+      - "traefik.http.routers.${PROJECT_NAME}.tls=false"
+      - "traefik.http.services.${PROJECT_NAME}-service.loadbalancer.server.port=32400"
 
 networks:
   proxy:

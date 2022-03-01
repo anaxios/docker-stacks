@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  reverse-proxy:
+    # The official v2.0 Traefik docker image
+    image: traefik:v2.0
+    command:
+      - --api.insecure=true
+      - --providers.docker
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --entryPoints.web.address=:80
+      - --entryPoints.websecure.address=:443
+      - --providers.docker.network=proxy
+      - --providers.docker.exposedbydefault=false
+    ports:
+      # Expose 81 since Windows System process is using 80 ¯\_(ツ)_/¯
+      - "80:80"
+      # Expose 443 for TLS
+      - "443:443"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # Allows Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Mount the dynamic configuration
+      - /etc/traefik/dynamic/certs-traefik.yml:/etc/traefik/dynamic/certs-traefik.yaml
+      # Mount the directory containing the certs
+      - /etc/certs/:/etc/certs/
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true

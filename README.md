@@ -35,6 +35,8 @@ docker-compose up -d
 
 *I have tried to make the configuration as automatic as I know how. Most of the cofiguration should be done in the .env files.*
 
+> NOTE: You do not have to restart the Traefik container. Traefik uses labels from these containers to dynamically configure itself.
+
 ### Setup the `.env`
 
 - Copy the `example.env` file and name it `.env`.

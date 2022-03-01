@@ -11,6 +11,10 @@ services:
       #      - 9091:9091
       - 51413:51413
       - 51413:51413/udp
+    volumes:
+      - ${PATH_TO_CONFIG}:/config
+      - ${PATH_TO_DOWNLOADS}:/downloads
+      - ${PATH_TO_WATCH}:/watch
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"

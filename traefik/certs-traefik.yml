@@ -1,0 +1,6 @@
+tls:
+  certificates:
+    - certFile: "/etc/certs/change.me.crt"
+      keyFile: "/etc/certs/change.me.key"
+    - certFile: "/etc/certs/also.me.crt"
+      keyFile: "/etc/certs/also.me.key"

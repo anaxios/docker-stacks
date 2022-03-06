@@ -1,0 +1,62 @@
+version: "3"
+services:
+  db:
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_DB: wiki
+      POSTGRES_PASSWORD: 
+      POSTGRES_USER: wikijs
+    logging:
+      driver: "none"
+    restart: unless-stopped
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - internal
+    deploy:
+      placement:
+        constraints: [node.id == <where db volume is>]
+
+  wiki:
+    image: ghcr.io/requarks/wiki:2
+    hostname: wiki
+    depends_on:
+      - db
+    environment:
+      DB_TYPE: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: wikijs
+      DB_PASS: 
+      DB_NAME: wiki
+      HA: "true"
+    restart: unless-stopped
+    #    ports:
+    #      - "3000:3000"
+    networks:
+      - internal
+      - proxy
+    deploy:
+      mode: replicated
+      replicas: 3
+      labels:
+        - "traefik.enable=true"
+        # Change the host url here
+        - "traefik.http.routers.wikijs.rule=Host(`change.me`)"
+        - "traefik.http.services.wikijs.loadbalancer.server.port=3000"
+        - "traefik.http.routers.wikijs.entrypoints=web"
+        #- "traefik.http.routers.wikijs.tls=true"
+        #- "traefik.http.routers.wikijs.tls.certresolver=leresolver"
+        #- traefik.http.routers.wikijs.tls.domains[0].main=test.daedalist.net
+        #- traefik.http.routers.blog.tls.domains[0].sans=*.daedalist.net
+        # Change the password here
+        #- "traefik.http.middlewares.auth.basicauth.users=admin:hashedpasswd" # user/password
+        #- "traefik.http.routers.my-app.middlewares=auth"
+
+volumes:
+  db-data:
+
+networks:
+  internal:
+  proxy:
+    external: true

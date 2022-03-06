@@ -1,0 +1,44 @@
+version: "3.3"
+
+services:
+  traefik:
+    image: "traefik"
+    command:
+      - --log.level=INFO
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.swarmMode=true
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.network=traefik-public
+      #- --api
+      #- --api.dashboard=true
+      - --certificatesresolvers.leresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      # update your email here
+      - --certificatesresolvers.leresolver.acme.email=frsophronios@outlook.com
+      # Make sure the this file is available and permission is set correctly
+      - --certificatesresolvers.leresolver.acme.storage=/le/acme.json
+      - --certificatesresolvers.leresolver.acme.tlschallenge=false
+      - --certificatesResolvers.leresolver.acme.httpChallenge.entryPoint=web
+      - --certificatesResolvers.leresolver.acme.httpChallenge=true
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - proxy
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      # Make sure the volume folder is created
+      - "data:/le/"
+    deploy:
+      placement:
+        constraints:
+          - node.role==manager
+
+volumes:
+  data:
+
+networks:
+  proxy:
+    external: true

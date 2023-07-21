@@ -9,7 +9,7 @@ services:
     volumes:
       - dbs:/var/lib/mysql
     env_file:
-      - .env
+      - stack.env
     networks:
       - internal
       
@@ -22,7 +22,7 @@ services:
     ports:
       - 8080:80
     env_file:
-      - .env
+      - stack.env
   
     image: yourls
     networks:
